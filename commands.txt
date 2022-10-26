@@ -1,0 +1,12 @@
+make_dataset:
+- dvc stage add -n final_preprocess_data -d data/raw -o data/processed python src/data/make_dataset.py 'data/raw/train.csv' 'data/processed/train.pkl' 'data/processed/target.pkl'; python src/data/make_dataset.py 'data/raw/test.csv' 'data/processed/test.pkl' ' '
+- python src/data/make_dataset.py 'data/raw/train.csv' 'data/processed/train.pkl' 'data/processed/target.pkl'
+- python src/data/make_dataset.py 'data/raw/test.csv' 'data/processed/test.pkl' ' '
+
+train_model:
+- python src/models/train_model.py 'data/processed/train.pkl' 'data/processed/target.pkl' 'catboost' 'models'
+- dvc stage add -n train_catboost -d data/processed -o models python src/models/train_model.py 'data/processed/train.pkl' 'data/processed/target.pkl' 'catboost' 'models'
+
+predict_model:
+- python src/models/predict_model.py 'models' 'data/processed/test.pkl' 'catboost'
+- dvc stage add -n evaluate catboost -d models -o submission_file_catboost.csv python src/models/predict_model.py 'models' 'data/processed/test.pkl' 'catboost'
